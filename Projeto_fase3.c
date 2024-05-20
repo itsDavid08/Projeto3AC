@@ -5,6 +5,7 @@
 //Timer0 - 5ms -> (65536 (10000h) - 5000 (1388h)) = 60536 (EC78h)
 #define Tempo0H 0xEC
 #define Tempo0L 0x78
+//
 
 //Timer1 - 50ms -> (65536 (10000h) - 50000 (C350h)) = 15536 (3CB0h)
 #define Tempo1H 0x3C
@@ -39,14 +40,14 @@ sbit resC = P3^6;
 sbit resD = P3^7;
 
 
-//declaração de variaveis
+//declaraï¿½ï¿½o de variaveis
 
 unsigned char DisplaySegundos = 5; //variavel que armazena o numero a mostrar no display D1 (segundos)
 unsigned char DisplayDecimas = 0; //variavel que armazena o numero a mostrar no display D2 (decimas de segundos)
 
-unsigned char MetadeDecima = 0; //timer 0 só conta 50ms, cada dois ciclos de timer 0 passam 100ms, a variavel conta se ja passou dois ciclos
+unsigned char MetadeDecima = 0; //timer 0 sï¿½ conta 50ms, cada dois ciclos de timer 0 passam 100ms, a variavel conta se ja passou dois ciclos
 
-unsigned char Contando = 1; //se é um o timer1 decresce o temporizador, se não conta os segundos para alternar o display
+unsigned char Contando = 1; //se ï¿½ um o timer1 decresce o temporizador, se nï¿½o conta os segundos para alternar o display
 
 unsigned char resposta = 0; //0-sem resposta, 1-A, 2-B, 3-C, 4-D
 
@@ -54,10 +55,10 @@ unsigned char CopiaDisplaySegundos = 0; //para guardar uma copia dos segundos
 unsigned char CopiaDisplayDecimas = 0; //para guardar uma copia das decimas
 
 unsigned char Umseg = 0; //para contar um segundo no momento de alternar o display
-//declaração de funções
+//declaraï¿½ï¿½o de funï¿½ï¿½es
 
-void Init(void); //função para inicializar os timers e interrupções
-void display (unsigned char Unidade, unsigned char Decimas); //mostra os números no display 
+void Init(void); //funï¿½ï¿½o para inicializar os timers e interrupï¿½ï¿½es
+void display (unsigned char Unidade, unsigned char Decimas); //mostra os nï¿½meros no display 
 
 void main(void)
 {
@@ -72,17 +73,17 @@ void main(void)
 void Init(void)
 {
 	//configurar o registo IE
-	EA = 1; //ativa interrupções globais
-	ET0 = 1; //ativa interrupções do timer 0
-	ET1 = 1; //ativa interrupções do timer 1
-	EX0 = 1; //ativa interrupção externa 0
-	EX1 = 0; //desativa interrupção externa 1
+	EA = 1; //ativa interrupï¿½ï¿½es globais
+	ET0 = 1; //ativa interrupï¿½ï¿½es do timer 0
+	ET1 = 1; //ativa interrupï¿½ï¿½es do timer 1
+	EX0 = 1; //ativa interrupï¿½ï¿½o externa 0
+	EX1 = 0; //desativa interrupï¿½ï¿½o externa 1
 	
-	//configuração das prioridades
+	//configuraï¿½ï¿½o das prioridades
 	//prioridade por defeito
 	IP = 0x00;
 	
-	//configuração dos timers	
+	//configuraï¿½ï¿½o dos timers	
 	//Timer0 - 5ms -> (65536 (10000h) - 5000 (1388h)) = 60536 (EC78h)
 	TH0 = Tempo0H;
 	TL0 = Tempo0L;
@@ -90,33 +91,33 @@ void Init(void)
 	TH1 = Tempo1H;
 	TL1 = Tempo1L;
 	
-	//configuração registo TMOD
+	//configuraï¿½ï¿½o registo TMOD
 	TMOD &= 0xF0; //limpa os 4 bits do timer 0 
 	TMOD |= 0x01; //modo 1 do timer 0
 	
 	TMOD &= 0x0F; //limpa os 4 bits do timer 1 
 	TMOD |= 0x10; //modo 1 do timer 1
 	
-	//configuração registo TCON
-	TR0 = 0; //timer 0 começa desligado
-	TR1 = 0; //timer 1 começa desligado
-	IT0 = 1; //interrupção externa 0 ativa no falling edge
-	IT1 = 1; //interrupção externa 1 ativa no falling edge
+	//configuraï¿½ï¿½o registo TCON
+	TR0 = 0; //timer 0 comeï¿½a desligado
+	TR1 = 0; //timer 1 comeï¿½a desligado
+	IT0 = 1; //interrupï¿½ï¿½o externa 0 ativa no falling edge
+	IT1 = 1; //interrupï¿½ï¿½o externa 1 ativa no falling edge
 }
 
-//interrupção externa 0 começa a contagem do temporizador
-//tambem inicializa o timer 0 para evitar o debounce do botão
+//interrupï¿½ï¿½o externa 0 comeï¿½a a contagem do temporizador
+//tambem inicializa o timer 0 para evitar o debounce do botï¿½o
 
 void External0_ISR(void) interrupt 0
 {
-	TR0 = 1; //timer 0 começa a contar o tempo
-	TR1 = 1; //timer 1 começa a contar o tempo
-	EX0 = 0; //desativa interrupção externa 0
+	TR0 = 1; //timer 0 comeï¿½a a contar o tempo
+	TR1 = 1; //timer 1 comeï¿½a a contar o tempo
+	EX0 = 0; //desativa interrupï¿½ï¿½o externa 0
 	
-	if (Contando == 0) //se contando é 0, quere dizer que estava a mostrar a resposta, então o programa inicia outra vez na interrupção
+	if (Contando == 0) //se contando ï¿½ 0, quere dizer que estava a mostrar a resposta, entï¿½o o programa inicia outra vez na interrupï¿½ï¿½o
 	{
 		Contando = 1; //contando volta a ser 1
-		resposta = 0; //a resposta anterior é apagada
+		resposta = 0; //a resposta anterior ï¿½ apagada
 		DisplaySegundos = 5;
 		DisplayDecimas = 0;
 		//Timer0 - 5ms -> (65536 (10000h) - 5000 (1388h)) = 60536 (EC78h)
@@ -125,75 +126,75 @@ void External0_ISR(void) interrupt 0
 		//Timer1 - 50ms -> (65536 (10000h) - 50000 (C350h)) = 15536 (3CB0h)
 		TH1 = Tempo1H;
 		TL1 = Tempo1L;
-		TR0 = 0; //timer 0 começa desligado
-		TR1 = 0; //timer 1 começa desligado
-		EX0 = 1; //ativa interrupção 0
-		EX1 = 0; //desativa interrupção 1
+		TR0 = 0; //timer 0 comeï¿½a desligado
+		TR1 = 0; //timer 1 comeï¿½a desligado
+		EX0 = 1; //ativa interrupï¿½ï¿½o 0
+		EX1 = 0; //desativa interrupï¿½ï¿½o 1
 	}
 }
 
-//timer 0 usado para evitar o debounce do botão, tempo de 5ms
+//timer 0 usado para evitar o debounce do botï¿½o, tempo de 5ms
 
 void Timer0_ISR(void) interrupt 1
 {
 	//Timer0 conta 5ms de debounce
-	TR0 = 0; //timer 0 pára de contar o tempo
-	IE0 = 0; //limpa a flag se P3.2 foi pressionado (ruído botão)
-	EX0 = 1; //ativa interrupção externa 0
+	TR0 = 0; //timer 0 pï¿½ra de contar o tempo
+	IE0 = 0; //limpa a flag se P3.2 foi pressionado (ruï¿½do botï¿½o)
+	EX0 = 1; //ativa interrupï¿½ï¿½o externa 0
 	
 	//Timer 0 - 5ms ->(65536(10000h) - 5000(1388h)) = 60536 (EC78h)
 	TH0 = Tempo0H; //faz reset ao timer 0
 	TL0 = Tempo0L;
 }
 
-//interrupção externa 1 é usada para escolher a opção
-//tambem inicializa o timer 0 para evitar o debounce do botão
+//interrupï¿½ï¿½o externa 1 ï¿½ usada para escolher a opï¿½ï¿½o
+//tambem inicializa o timer 0 para evitar o debounce do botï¿½o
 
 void External1_ISR(void) interrupt 2
 {
-	TR0 = 1; //timer 0 começa a contar o tempo
-	TR1 = 1; //timer 1 começa a contar o tempo
-	EX1 = 0; //desativa interrupção externa 1
+	TR0 = 1; //timer 0 comeï¿½a a contar o tempo
+	TR1 = 1; //timer 1 comeï¿½a a contar o tempo
+	EX1 = 0; //desativa interrupï¿½ï¿½o externa 1
 	
 	if (resA==0)
 	{
-		resposta=1; //se foi selecionado A, resposta é igual a 1
+		resposta=1; //se foi selecionado A, resposta ï¿½ igual a 1
 	}
 	
 	if (resB==0)
 	{
-		resposta=2; //se foi selecionado B, resposta é igual a 2
+		resposta=2; //se foi selecionado B, resposta ï¿½ igual a 2
 	}
 	
 	if (resC==0)
 	{
-		resposta=3; //se foi selecionado C, resposta é igual a 3
+		resposta=3; //se foi selecionado C, resposta ï¿½ igual a 3
 	}
 	
 	if (resD==0)
 	{
-		resposta=4; //se foi selecionado D, resposta é igual a 4
+		resposta=4; //se foi selecionado D, resposta ï¿½ igual a 4
 	}
-	Contando=0; //contando passa a ser zero para não decrementar o temporizador 
+	Contando=0; //contando passa a ser zero para nï¿½o decrementar o temporizador 
 	CopiaDisplaySegundos = DisplaySegundos; //guarda uma copia do tempo restante (segundos)
 	CopiaDisplayDecimas = DisplayDecimas; //guarda uma copia do tempo restante (decimas)
 }
 
-//timer 1 é usado para contar os 5 segundos do temporizador e o tempo de 1 segundo para mostrar alternadamente a resposta e o tempo
+//timer 1 ï¿½ usado para contar os 5 segundos do temporizador e o tempo de 1 segundo para mostrar alternadamente a resposta e o tempo
 
 void Timer1_ISR(void) interrupt 3
 {
-	EX1 = 1; //ativa interrupção externa 1 para dar a resposta
+	EX1 = 1; //ativa interrupï¿½ï¿½o externa 1 para dar a resposta
 	if (Contando==1)
 	{
 		if(MetadeDecima >= 1)  //se ja contou dois ciclos (50ms*2 = 100ms) decrementa o numero mostrado nas decimas
 		{
-			if(DisplayDecimas <= 0)   //se o numero nas decimas é zero, decrementa o segundo e a decima passa a 9
+			if(DisplayDecimas <= 0)   //se o numero nas decimas ï¿½ zero, decrementa o segundo e a decima passa a 9
 			{
 				--DisplaySegundos;
 				DisplayDecimas = 9;
 			}
-			else  //se não, simplesmente decrementa o número mostrado nas decimas 
+			else  //se nï¿½o, simplesmente decrementa o nï¿½mero mostrado nas decimas 
 			{
 				--DisplayDecimas;
 			}
@@ -201,16 +202,16 @@ void Timer1_ISR(void) interrupt 3
 		}
 		else
 		{
-			++MetadeDecima; //se só contou 1 ciclo de 50ms, incrementa a variavel para saber que no seguinte ciclo já passou 100ms 
+			++MetadeDecima; //se sï¿½ contou 1 ciclo de 50ms, incrementa a variavel para saber que no seguinte ciclo jï¿½ passou 100ms 
 		}
 	
 		//Timer1 - 50ms -> (65536 (10000h) - 50000 (C350h)) = 15536 (3CB0h)
 		TH1 = Tempo1H; //faz reset ao timer 1
 		TL1 = Tempo1L;
 	
-		if (DisplaySegundos == 0 && DisplayDecimas == 0) //caso o tempo acabar e não haber resposta 
+		if (DisplaySegundos == 0 && DisplayDecimas == 0) //caso o tempo acabar e nï¿½o haber resposta 
 		{
-			DisplaySegundos = 0; //define o tempo a 0 para não haver erros no display 
+			DisplaySegundos = 0; //define o tempo a 0 para nï¿½o haver erros no display 
 			DisplayDecimas = 0;
 			CopiaDisplaySegundos = DisplaySegundos; //guarda uma copia do tempo restante (segundos)
 			CopiaDisplayDecimas = DisplayDecimas; //guarda uma copia do tempo restante (decimas)
@@ -221,18 +222,18 @@ void Timer1_ISR(void) interrupt 3
 	{
 		if (Umseg >= 14) //se ja passou um segundo, alterna os displays
 		{
-			if (DisplaySegundos == 10) //se o display D1 mostra um traço, quere dizer que esta a mostrar a resposta
+			if (DisplaySegundos == 10) //se o display D1 mostra um traï¿½o, quere dizer que esta a mostrar a resposta
 			{
 				DisplaySegundos = CopiaDisplaySegundos; //volta a mostrar os segundos restantes
 				DisplayDecimas = CopiaDisplayDecimas; //volta a mostrar as decimas restantes
 			}
-			else //se não, esta a mostrar o tempo
+			else //se nï¿½o, esta a mostrar o tempo
 			{
-				DisplaySegundos = 10; //mostra um traço no display dos segundos
+				DisplaySegundos = 10; //mostra um traï¿½o no display dos segundos
 				switch (resposta) //dependendo da resposta mostra no display D2
 				{
 					case 0:
-						DisplayDecimas = 10; //sem resposta, mostra um traço
+						DisplayDecimas = 10; //sem resposta, mostra um traï¿½o
 						break;
 					case 1:
 						DisplayDecimas = 11; //Resposta 1 mostra A
@@ -247,7 +248,7 @@ void Timer1_ISR(void) interrupt 3
 						DisplayDecimas = 14; //Resposta 4 mostra D
 						break;
 					default:
-						DisplayDecimas = 10; //caso default mostra um traço
+						DisplayDecimas = 10; //caso default mostra um traï¿½o
 				}
 			}
 			Umseg = 0; //faz reset ao contador de 1 segundo
@@ -259,12 +260,12 @@ void Timer1_ISR(void) interrupt 3
 	}
 }
 
-//Função para mostrar os caracteres no display
+//Funï¿½ï¿½o para mostrar os caracteres no display
 
 void display(unsigned char Unidade, unsigned char Decimas)
 {
 	
-	//números das unidades
+	//nï¿½meros das unidades
 	code unsigned segments1 [11][8] = {
 		{0, 0, 0, 0, 0, 0, 1, 0},//0.
 		{1, 0, 0, 1, 1, 1, 1, 0},//1.
@@ -279,7 +280,7 @@ void display(unsigned char Unidade, unsigned char Decimas)
 		{1, 1, 1, 1, 1, 1, 0, 0}, //-.
 	};
 	
-	//numeros das décimas
+	//numeros das dï¿½cimas
 	code unsigned segments2 [15][8] = {
 		{0, 0, 0, 0, 0, 0, 1, 1},//0
 		{1, 0, 0, 1, 1, 1, 1, 1},//1
