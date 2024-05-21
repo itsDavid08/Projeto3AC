@@ -10,52 +10,51 @@
 
 
 
-//ports para os segmentos dos displays D1 e D2 e as entradas das respostas
+//atribuição dos pinos
+//display D1
+sbit D1A = P1^0;
+sbit D1B = P1^1;
+sbit D1C = P1^2;
+sbit D1D = P1^3;
+sbit D1E = P1^4;
+sbit D1F = P1^5;
+sbit D1G = P1^6;
+sbit D1DP = P1^7;
 
-//segmentos do display D1
-sbit seg1A = P1^0;
-sbit seg1B = P1^1;
-sbit seg1C = P1^2;
-sbit seg1D = P1^3;
-sbit seg1E = P1^4;
-sbit seg1F = P1^5;
-sbit seg1G = P1^6;
-sbit seg1DP = P1^7;
+//display D2
+sbit D2A = P2^0;
+sbit D2B = P2^1;
+sbit D2C = P2^2;
+sbit D2D = P2^3;
+sbit D2E = P2^4;
+sbit D2F = P2^5;
+sbit D2G = P2^6;
+sbit D2DP = P2^7;
 
-//segmentos do display D2
-sbit seg2A = P2^0;
-sbit seg2B = P2^1;
-sbit seg2C = P2^2;
-sbit seg2D = P2^3;
-sbit seg2E = P2^4;
-sbit seg2F = P2^5;
-sbit seg2G = P2^6;
-sbit seg2DP = P2^7;
+//Botões de entrada
+sbit bA = P3^4;
+sbit bB = P3^5;
+sbit bC = P3^6;
+sbit bD = P3^7;
+sbit bAnd = P3^3;
 
-//Ports para as respostas
-sbit resA = P3^4;
-sbit resB = P3^5;
-sbit resC = P3^6;
-sbit resD = P3^7;
-sbit resAnd = P3^3;
 
-//declara��o de variaveis
 
-unsigned char Segundos = 5; //variavel que armazena o numero a mostrar no display D1 (segundos)
-unsigned char DecimasSegundos = 0; //variavel que armazena o numero a mostrar no display D2 (decimas de segundos)
+unsigned char Segundos = 5; //guarda os segundos a mostrar no D1
+unsigned char DecimasSegundos = 0; //guarda as decimas de segundos mostrados no D2
 unsigned int conta = 0;
 
-unsigned char Start = 1; //se � um o timer1 decresce o temporizador, se n�o conta os segundos para alternar o display
+unsigned char Start = 1; //variavel que indica se dá-se início à contagem decrescente
 
-unsigned char resposta = 0; //0-sem resposta, 1-A, 2-B, 3-C, 4-D
+unsigned char resposta = 0; // interpreta a qual foi o botão presionado pelo utilizador 
 
-unsigned char GuardaSegundos = 0; //para guardar uma copia dos segundos 
-unsigned char GuardaDecimasSegundos = 0; //para guardar uma copia das decimas
+unsigned char GuardaSegundos = 0; //guarda uma copia dos segundos 
+unsigned char GuardaDecimasSegundos = 0; //guarda uma copia das decimas dos segundos
 
 
 
-void Init(void); //fun��o para inicializar os timers e interrup��es
-void mostraDisplay (unsigned char Unidade, unsigned char Decimas); //mostra os n�meros no display 
+void Init(void); 
+void mostraDisplay (unsigned char S, unsigned char D); 
 
 void main(void)
 {
@@ -63,54 +62,50 @@ void main(void)
 	
 	while(1) //ciclo infinito
 	{
-		resAnd = resA && resB && resC && resD;
+		bAnd = bA && bB && bC && bD; //ISTO É TEMPORAL JÁ QUE SERÁ FEITO FISICAMENTE
 		mostraDisplay (Segundos, DecimasSegundos);
 	}
 }
 
 void Init(void)
 {
-	//configurar o registo IE
-	EA = 1; //ativa interrup��es globais
-	ET0 = 1; //ativa interrup��es do timer 0
-	ET1 = 1; //ativa interrup��es do timer 1
-	EX0 = 1; //ativa interrup��o externa 0
-	EX1 = 0; //desativa interrup��o externa 1
+	EA = 1; //ativar as interrupções
+	ET0 = 1; //ativa interrupçõe do timer 0
+	ET1 = 1; //ativa interrupções do timer 1
+	EX0 = 1; //ativa interrupção externa 0
+	EX1 = 0; //não ativa interrução externa 1
 	
-	//configura��o das prioridades
-	//prioridade por defeito
-	IP = 0x00;
 	
-	//configura��o dos timers	
+
+	IP = 0x00;//prioridades das interrupções
+	
+
 	//Timer0 - 10ms -> (65536 (10000h) - 10000 (2710h)) = 55536 (D8F0h)
 	TH0 = TempoH;
 	TL0 = TempoL;
+	
 	//Timer1 - 10ms -> (65536 (10000h) - 10000 (2710h)) = 55536 (D8F0h)
 	TH1 = TempoH;
 	TL1 = TempoL;
 	
-	//configura��o registo TMOD
-	TMOD &= 0xF0; //limpa os 4 bits do timer 0 
-	TMOD |= 0x01; //modo 1 do timer 0
+
+	TMOD &= 0xFF; //apaga o que estiver no TMOD
+	TMOD |= 0x11; //Coloca os dois Timers no modo 1 (16 bits)
+
+	TR0 = 0; //timer 0 desligado
+	TR1 = 0; //timer 1 desligado
 	
-	TMOD &= 0x0F; //limpa os 4 bits do timer 1 
-	TMOD |= 0x10; //modo 1 do timer 1
-	
-	//configura��o registo TCON
-	TR0 = 0; //timer 0 come�a desligado
-	TR1 = 0; //timer 1 come�a desligado
-	IT0 = 1; //interrup��o externa 0 ativa no falling edge
-	IT1 = 1; //interrup��o externa 1 ativa no falling edge
+	//interrupções externas ativam quando o botão passa a ter valor lógico zero
+	IT0 = 1; 
+	IT1 = 1; 
 }
 
-//interrup��o externa 0 come�a a contagem do temporizador
-//tambem inicializa o timer 0 para evitar o debounce do bot�o
 
-void External0_ISR(void) interrupt 0
+void InterrupcaoExterna0 (void) interrupt 0  //foi presionado B1
 {
 	
 	
-	if (Start == 0) //se contando � 0, quere dizer que estava a mostrar a resposta, ent�o o programa inicia outra vez na interrup��o
+	if (Start == 0) //caso estiver a contar a Zero, a contagem terá acabado e é preciso reiniciar a contagem
 	{
 		Start = 1; //contando volta a ser 1
 		resposta = 0; //a resposta anterior � apagada
@@ -128,7 +123,7 @@ void External0_ISR(void) interrupt 0
 		EX1 = 0; //desativa interrup��o 1
 		conta = 0;
 	}
-	else{
+	else{  //caso contrario, inicia a contagem
 		TR0 = 1; //timer 0 come�a a contar o tempo
 		TR1 = 1; //timer 1 come�a a contar o tempo
 		EX0 = 0; //desativa interrup��o externa 0
@@ -137,61 +132,65 @@ void External0_ISR(void) interrupt 0
 
 
 
-//timer 0 usado para evitar o debounce do bot�o, tempo de 10ms
-void Timer0_ISR(void) interrupt 1
+
+void Interrupcao_Timer0(void) interrupt 1  //timer 0 usado para debounce de todos os botões
 {
-	//Timer0 conta 10ms de debounce
-	TR0 = 0; //timer 0 p�ra de contar o tempo
-	IE0 = 0; //limpa a flag se P3.2 foi pressionado (ru�do bot�o)
+	TR0 = 0; //desativa o timer0
+	
+	//elimina o ruido do botão ao limpar as flags das interrupções externas
+	IE0 = 0; 
 	IE1 = 0;
-	EX0 = 1; //ativa interrup��o externa 0
+	
+	//ativa as interrupções externas
+	EX0 = 1; 
 	EX1 = 1;
 	
+	
+	//faz reset ao timer 0
 	//Timer 0 - 10ms -> (65536 (10000h) - 10000 (2710h)) = 55536 (D8F0h)
-	TH0 = TempoH; //faz reset ao timer 0
+	TH0 = TempoH; 
 	TL0 = TempoL;
 }
 
 
 
-//interrup��o externa 1 � usada para escolher a op��o
-//tambem inicializa o timer 0 para evitar o debounce do bot�o
 
-void External1_ISR(void) interrupt 2
+void InterrupcaoExterna2 (void) interrupt 2 //foi presionado bA ou bB ou bC ou bD
 {
-	TR0 = 1; //timer 0 come�a a contar o tempo
-	TR1 = 1; //timer 1 come�a a contar o tempo
-	EX1 = 0; //desativa interrup��o externa 1
+	//TR1 = 1; //timer 1 come�a a contar o tempo
+	//começa o debouce dos botões
+	TR0 = 1; 
+	EX1 = 0; 
 	
-	if (resA==0)
+	if (bA==0)
 	{
-		resposta=1; //se foi selecionado A, resposta � igual a 1
+		resposta= 'a'; 
 	}
 	
-	if (resB==0)
+	if (bB==0)
 	{
-		resposta=2; //se foi selecionado B, resposta � igual a 2
+		resposta= 'b';
 	}
 	
-	if (resC==0)
+	if (bC==0)
 	{
-		resposta=3; //se foi selecionado C, resposta � igual a 3
+		resposta= 'c';
 	}
 	
-	if (resD==0)
+	if (bD==0)
 	{
-		resposta=4; //se foi selecionado D, resposta � igual a 4
+		resposta= 'd';
 	}
-	Start =0; //contando passa a ser zero para n�o decrementar o temporizador 
-	GuardaSegundos = Segundos; //guarda uma copia do tempo restante (segundos)
-	GuardaDecimasSegundos = DecimasSegundos; //guarda uma copia do tempo restante (decimas)
+	
+	Start =0; //Start guarda a 0 já que para a contagem decresciva 
+	GuardaSegundos = Segundos; //guarda uma copia dos segundos
+	GuardaDecimasSegundos = DecimasSegundos; //guarda uma copia das decimas
 }
 
-//timer 1 � usado para contar os 5 segundos do temporizador e o tempo de 1 segundo para mostrar alternadamente a resposta e o tempo
 
-void Timer1_ISR(void) interrupt 3
+void Interrupcao_Timer1 (void) interrupt 3
 {
-	if (Start==1)
+	if (Start==1) // se esta ativa a contagem decresciva
 	{
 		
 		if (conta >= 10){
@@ -206,117 +205,106 @@ void Timer1_ISR(void) interrupt 3
 			}
 			conta = 0;
 		}
-		else{
+		else{ 
 		conta++;
 		}
 		
 	
-		if (Segundos == 0 && DecimasSegundos == 0) //caso o tempo acabar e n�o haber resposta 
+		if (Segundos == 0 && DecimasSegundos == 0) //caso os segundos e decimas de segundos chegarem a zero significa que não foi precionado nenhum botão de resposta 
 		{
-			GuardaSegundos = Segundos; //guarda uma copia do tempo restante (segundos)
-			GuardaDecimasSegundos = DecimasSegundos; //guarda uma copia do tempo restante (decimas)
+			GuardaSegundos = Segundos; //guarda uma copia dos segundos
+			GuardaDecimasSegundos = DecimasSegundos; //guarda uma copia das decimas
 			Start = 0;
 			conta = 0;
 		}
 	}
-	else
+	else // caso tenha acabado a contagem decresciva 
 	{
-		if (conta >= 100) //se ja passou um segundo, alterna os displays
+		if (conta >= 100) //por cada segundo
 		{
-			if (Segundos == 10) //se o display D1 mostra um traço, quere dizer que esta a mostrar a resposta
+			if (Segundos == 10) //se os segundos(display1) mostrar um traço
 			{
-				Segundos = GuardaSegundos; //volta a mostrar os segundos restantes
-				DecimasSegundos = GuardaDecimasSegundos; //volta a mostrar as decimas restantes
+				Segundos = GuardaSegundos; //mostra os segundos 
+				DecimasSegundos = GuardaDecimasSegundos; //mostra as decimas 
 			}
-			else //se n�o, esta a mostrar o tempo
+			else //caso contrario
 			{
-				Segundos = 10; //mostra um tra�o no display dos segundos
-				switch (resposta) //dependendo da resposta mostra no display D2
+				Segundos = 10; //o display 1 mostra um traço
+				switch (resposta) //switch que interpreta a resposta introduzida
 				{
-					case 1:
-						DecimasSegundos = 11; //Resposta 1 mostra A
+					case 'a':
+						DecimasSegundos = 11; //mostra A
 						break;
-					case 2:
-						DecimasSegundos = 12; //Resposta 2 mostra B
+					case 'b':
+						DecimasSegundos = 12; //mostra B
 						break;
-					case 3:
-						DecimasSegundos = 13; //Resposta 3 mostra C
+					case 'c':
+						DecimasSegundos = 13; //mostra C
 						break;
-					case 4:
-						DecimasSegundos = 14; //Resposta 4 mostra D
+					case 'd':
+						DecimasSegundos = 14; //mostra D
 						break;
 					default:
-						DecimasSegundos = 10; //caso default mostra um tra�o
+						DecimasSegundos = 10; //mostra um traço
 				}
 			}
-			conta = 0; //faz reset ao contador de 1 segundo
+			conta = 0; //reinicia o contador
 		}
-		else
+		else //caso ainda não for contado nenhum segundo
 		{
-			++conta; //incrementa o contador de 1 segundo
+			++conta;
 		}
 	}
 	
+	
+	//reinicia o timer1
 	//Timer1 - 10ms -> (65536 (10000h) - 10000 (2710h)) = 55536 (D8F0h)
-		TH1 = TempoH; //faz reset ao timer 1
+		TH1 = TempoH; 
 		TL1 = TempoL;
 	
 }
 
 //Fun��o para mostrar os caracteres no display
 
-void mostraDisplay(unsigned char Unidade, unsigned char Decimas)
+void mostraDisplay(unsigned char S, unsigned char D)
 {
 	
-	//n�meros das unidades
-	code unsigned segments1 [11][8] = {
-		{0, 0, 0, 0, 0, 0, 1, 0},//0.
-		{1, 0, 0, 1, 1, 1, 1, 0},//1.
-		{0, 0, 1, 0, 0, 1, 0, 0},//2.
-		{0, 0, 0, 0, 1, 1, 0, 0},//3.
-		{1, 0, 0, 1, 1, 0, 0, 0},//4.
-		{0, 1, 0, 0, 1, 0, 0, 0},//5.
-		{0, 1, 0, 0, 0, 0, 0, 0},//6.
-		{0, 0, 0, 1, 1, 1, 1, 0},//7.
-		{0, 0, 0, 0, 0, 0, 0, 0},//8.
-		{0, 0, 0, 0, 1, 0, 0, 0},//9.
-		{1, 1, 1, 1, 1, 1, 0, 0}, //-.
+	//tabela com os valores a mostrar no display
+	code unsigned display [26][7] = {  //é preciso atribuir ainda o valor para DP
+
+		{0, 0, 0, 0, 0, 0, 1},//0
+		{1, 0, 0, 1, 1, 1, 1},//1
+		{0, 0, 1, 0, 0, 1, 0},//2
+		{0, 0, 0, 0, 1, 1, 0},//3
+		{1, 0, 0, 1, 1, 0, 0},//4
+		{0, 1, 0, 0, 1, 0, 0},//5
+		{0, 1, 0, 0, 0, 0, 0},//6
+		{0, 0, 0, 1, 1, 1, 1},//7
+		{0, 0, 0, 0, 0, 0, 0},//8
+		{0, 0, 0, 0, 1, 0, 0},//9
+		{1, 1, 1, 1, 1, 1, 0},//-
+		{0, 0, 0, 1, 0, 0, 0},//A
+		{1, 1, 0, 0, 0, 0, 0},//B
+		{0, 1, 1, 0, 0, 0, 1},//C
+		{1, 0, 0, 0, 0, 1, 0},//D
 	};
 	
-	//numeros das d�cimas
-	code unsigned segments2 [15][8] = {
-		{0, 0, 0, 0, 0, 0, 1, 1},//0
-		{1, 0, 0, 1, 1, 1, 1, 1},//1
-		{0, 0, 1, 0, 0, 1, 0, 1},//2
-		{0, 0, 0, 0, 1, 1, 0, 1},//3
-		{1, 0, 0, 1, 1, 0, 0, 1},//4
-		{0, 1, 0, 0, 1, 0, 0, 1},//5
-		{0, 1, 0, 0, 0, 0, 0, 1},//6
-		{0, 0, 0, 1, 1, 1, 1, 1},//7
-		{0, 0, 0, 0, 0, 0, 0, 1},//8
-		{0, 0, 0, 0, 1, 0, 0, 1},//9
-		{1, 1, 1, 1, 1, 1, 0, 1},//-
-		{0, 0, 0, 1, 0, 0, 0, 1},//A
-		{1, 1, 0, 0, 0, 0, 0, 1},//B
-		{0, 1, 1, 0, 0, 0, 1, 1},//C
-		{1, 0, 0, 0, 0, 1, 0, 1},//D
-	};
+	//mostra o display com 
+	D1A = display[S][0];
+	D1B = display[S][1];
+	D1C = display[S][2];
+	D1D = display[S][3];
+	D1E = display[S][4];
+	D1F = display[S][5];
+	D1G = display[S][6];
+	D1DP = 0; 							//mostra . no display
 	
-	seg1A = segments1[Unidade][0];
-	seg1B = segments1[Unidade][1];
-	seg1C = segments1[Unidade][2];
-	seg1D = segments1[Unidade][3];
-	seg1E = segments1[Unidade][4];
-	seg1F = segments1[Unidade][5];
-	seg1G = segments1[Unidade][6];
-	seg1DP = segments1[Unidade][7];
-	
-	seg2A = segments2[Decimas][0];
-	seg2B = segments2[Decimas][1];
-	seg2C = segments2[Decimas][2];
-	seg2D = segments2[Decimas][3];
-	seg2E = segments2[Decimas][4];
-	seg2F = segments2[Decimas][5];
-	seg2G = segments2[Decimas][6];
-	seg2DP = segments2[Decimas][7];
+	D2A = display[D][0];
+	D2B = display[D][1];
+	D2C = display[D][2];
+	D2D = display[D][3];
+	D2E = display[D][4];
+	D2F = display[D][5];
+	D2G = display[D][6];
+	D2DP = 1;								// não mostra o . no display
 }
