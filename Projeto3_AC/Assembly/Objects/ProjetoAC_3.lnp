@@ -1,0 +1,3 @@
+".\Objects\Projeto_Assembly.obj" 
+TO ".\Objects\ProjetoAC_3" 
+PRINT(".\Listings\ProjetoAC_3.m51")
