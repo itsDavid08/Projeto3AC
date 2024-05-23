@@ -120,13 +120,13 @@ void InterrupcaoExterna0 (void) interrupt 0  //foi presionado B1
 		TR0 = 1; //timer 0 come�a desligado
 		TR1 = 0; //timer 1 come�a desligado
 		EX0 = 0; //ativa interrup��o 0
-		EX1 = 0; //desativa interrup��o 1
 		conta = 0;
 	}
 	else{  //caso contrario, inicia a contagem
 		TR0 = 1; //timer 0 come�a a contar o tempo
 		TR1 = 1; //timer 1 come�a a contar o tempo
 		EX0 = 0; //desativa interrup��o externa 0
+		EX1 = 1; //desativa interrup��o 1
 	}
 }
 
@@ -143,7 +143,7 @@ void Interrupcao_Timer0(void) interrupt 1  //timer 0 usado para debounce de todo
 	
 	//ativa as interrupções externas
 	EX0 = 1; 
-	EX1 = 1;
+
 	
 	
 	//faz reset ao timer 0
@@ -159,7 +159,6 @@ void InterrupcaoExterna2 (void) interrupt 2 //foi presionado bA ou bB ou bC ou b
 {
 	//TR1 = 1; //timer 1 come�a a contar o tempo
 	//começa o debouce dos botões
-	TR0 = 1; 
 	EX1 = 0; 
 	
 	if (bA==0)
@@ -197,8 +196,18 @@ void Interrupcao_Timer1 (void) interrupt 3
 			
 			if(DecimasSegundos == 0)
 			{
-				DecimasSegundos = 9;
-				--Segundos;
+				if(Segundos == 0){
+					EX1 = 0 ;
+					GuardaSegundos = Segundos; //guarda uma copia dos segundos
+					GuardaDecimasSegundos = DecimasSegundos; //guarda uma copia das decimas
+					Start = 0;
+					conta = 0;
+					
+				}
+					else{
+						DecimasSegundos = 9;
+						--Segundos;
+					}
 			}
 			else{
 				--DecimasSegundos;
@@ -208,15 +217,7 @@ void Interrupcao_Timer1 (void) interrupt 3
 		else{ 
 		conta++;
 		}
-		
-	
-		if (Segundos == 0 && DecimasSegundos == 0) //caso os segundos e decimas de segundos chegarem a zero significa que não foi precionado nenhum botão de resposta 
-		{
-			GuardaSegundos = Segundos; //guarda uma copia dos segundos
-			GuardaDecimasSegundos = DecimasSegundos; //guarda uma copia das decimas
-			Start = 0;
-			conta = 0;
-		}
+
 	}
 	else // caso tenha acabado a contagem decresciva 
 	{

@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 00:08:41 PAGE     1
+A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 15:39:11 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.2.7.0
@@ -65,235 +65,243 @@ LOC  OBJ            LINE     SOURCE
                       48         
 0077 D288             49         SETB IT0
 0079 D28A             50         SETB IT1
-A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 00:08:41 PAGE     2
+A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 15:39:11 PAGE     2
 
                       51     
                       52         ; Start the main loop
 007B                  53     MAIN_LOOP:
-007B 313B             54         CALL DISPLAY
+007B 313F             54         CALL DISPLAY
 007D 80FC             55         SJMP MAIN_LOOP
                       56     
                       57     ; External Interrupt 0 ISR
 007F                  58     EX0_ISR:
 007F EB               59         MOV A, R3 ; A <- Start
-0080 6008             60         JZ EX0_ISR_s0
+0080 600A             60         JZ EX0_ISR_s0
                       61         
 0082 D28C             62         SETB TR0  ; Start Timer 0
 0084 D28E             63         SETB TR1  ; Start Timer 1
 0086 C2A8             64         CLR EX0   ; Disable external interrupt 0
-                      65     
-0088 801E             66         JMP Fim_EXO_ISR
-                      67         
-008A                  68     EX0_ISR_s0:
-008A 7B01             69         MOV R3, #1 ;Start = 1
-008C 7C00             70         MOV R4, #0 ; resposta = 0
-008E 7805             71         MOV R0, #5 ; Segundos = 5
-0090 7900             72         MOV R1, #0; DecimasSegundos = 0
-                      73         
-0092 85D88C           74         MOV TH0, TempoH
-0095 85F08A           75         MOV TL0, TempoL
-                      76         
-0098 85D88D           77         MOV TH1, TempoH
-009B 85F08B           78         MOV TL1, TempoL
-                      79         
-009E D28C             80         SETB TR0
-00A0 C28E             81         CLR TR1
-00A2 C2A8             82         CLR EX0
-00A4 C2AA             83         CLR EX1
-00A6 7A00             84         MOV R2, #0 ; Start = 0 
-                      85         
-00A8                  86     Fim_EXO_ISR:  
-00A8 32               87         RETI
-                      88     
-                      89     ; Timer 0 ISR - Debounce handling
-00A9                  90     TIMER0_ISR:
-00A9 C28C             91         CLR TR0   ; Stop Timer 0
-                      92         
-00AB C289             93         CLR IE0   ; Clear External Interrupt 0 flag
-00AD C28B             94         CLR IE1
-                      95         
-00AF D2A8             96         SETB EX0
-00B1 D2AA             97         SETB EX1  ; Re-enable External Interrupt 0
+0088 D2AA             65             SETB EX1;
+                      66     
+                      67     
+008A 801C             68         JMP Fim_EXO_ISR
+                      69         
+008C                  70     EX0_ISR_s0:
+008C 7B01             71         MOV R3, #1 ;Start = 1
+008E 7C00             72         MOV R4, #0 ; resposta = 0
+0090 7805             73         MOV R0, #5 ; Segundos = 5
+0092 7900             74         MOV R1, #0; DecimasSegundos = 0
+                      75         
+0094 85D88C           76         MOV TH0, TempoH
+0097 85F08A           77         MOV TL0, TempoL
+                      78         
+009A 85D88D           79         MOV TH1, TempoH
+009D 85F08B           80         MOV TL1, TempoL
+                      81         
+00A0 D28C             82         SETB TR0
+00A2 C28E             83         CLR TR1
+00A4 C2A8             84         CLR EX0
+00A6 7A00             85         MOV R2, #0 ; Start = 0 
+                      86         
+00A8                  87     Fim_EXO_ISR:  
+00A8 32               88         RETI
+                      89     
+                      90     ; Timer 0 ISR - Debounce handling
+00A9                  91     TIMER0_ISR:
+00A9 C28C             92         CLR TR0   ; Stop Timer 0
+                      93         
+00AB C289             94         CLR IE0   ; Clear External Interrupt 0 flag
+00AD C28B             95         CLR IE1
+                      96         
+00AF D2A8             97         SETB EX0
                       98     
                       99         ; Reset Timer 0
-00B3 758CD8          100         MOV TH0, #TempoH
-00B6 758AF0          101         MOV TL0, #TempoL
+00B1 758CD8          100         MOV TH0, #TempoH
+00B4 758AF0          101         MOV TL0, #TempoL
                      102     
-00B9 32              103         RETI
+00B7 32              103         RETI
                      104     
                      105     ; External Interrupt 1 ISR - Response handling
-00BA                 106     EX1_ISR:
-00BA D28C            107         SETB TR0  ; Start Timer 0
-00BC C2AA            108         CLR EX1   ; Disable external interrupt 1
-                     109     
-                     110         ; Check which response is selected
-00BE 30B40B          111         JNB bA, SELECT_A
-00C1 30B50C          112         JNB bB, SELECT_B
-00C4 30B60D          113         JNB bC, SELECT_C
-00C7 30B70E          114         JNB bD, SELECT_D
-                     115     
-00CA 800E            116         JMP HANDLE_RESPONSE
-A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 00:08:41 PAGE     3
+00B8                 106     EX1_ISR:
+00B8 C2AA            107         CLR EX1   ; Disable external interrupt 1
+                     108     
+                     109         ; Check which response is selected
+00BA 30B40B          110         JNB bA, SELECT_A
+00BD 30B50C          111         JNB bB, SELECT_B
+00C0 30B60D          112         JNB bC, SELECT_C
+00C3 30B70E          113         JNB bD, SELECT_D
+                     114     
+00C6 800E            115         JMP HANDLE_RESPONSE
+                     116     
+A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 15:39:11 PAGE     3
 
-                     117     
-00CC                 118     SELECT_A:
-00CC 7C01            119         MOV R4, #1
-00CE 800A            120         SJMP HANDLE_RESPONSE
-                     121     
-00D0                 122     SELECT_B:
-00D0 7C02            123         MOV R4, #2
-00D2 8006            124         SJMP HANDLE_RESPONSE
-                     125     
-00D4                 126     SELECT_C:
-00D4 7C03            127         MOV R4, #3
-00D6 8002            128         SJMP HANDLE_RESPONSE
-                     129     
-00D8                 130     SELECT_D:
-00D8 7C04            131         MOV R4, #4
-                     132     
-00DA                 133     HANDLE_RESPONSE:
-00DA 7B00            134         MOV R3, #0   ; Start = 0 
-00DC E8              135             MOV A, R0   
-00DD FD              136             MOV R5, A; GuardaSegundos = Segundos
-00DE E9              137             MOV A, R1
-00DF FE              138             MOV R6, A ;GuardaDecimasSegundos = DecimasSegundos
-                     139     
-00E0 32              140         RETI
+00C8                 117     SELECT_A:
+00C8 7C01            118         MOV R4, #1
+00CA 800A            119         SJMP HANDLE_RESPONSE
+                     120     
+00CC                 121     SELECT_B:
+00CC 7C02            122         MOV R4, #2
+00CE 8006            123         SJMP HANDLE_RESPONSE
+                     124     
+00D0                 125     SELECT_C:
+00D0 7C03            126         MOV R4, #3
+00D2 8002            127         SJMP HANDLE_RESPONSE
+                     128     
+00D4                 129     SELECT_D:
+00D4 7C04            130         MOV R4, #4
+                     131     
+00D6                 132     HANDLE_RESPONSE:
+00D6 7B00            133         MOV R3, #0   ; Start = 0 
+00D8 E8              134             MOV A, R0   
+00D9 FD              135             MOV R5, A; GuardaSegundos = Segundos
+00DA E9              136             MOV A, R1
+00DB FE              137             MOV R6, A ;GuardaDecimasSegundos = DecimasSegundos
+                     138     
+00DC 32              139         RETI
+                     140     
                      141     
-                     142     
-                     143     ; Timer 1 ISR - Counting time and display control
-00E1                 144     TIMER1_ISR:
-                     145         ; Check if still counting down
+                     142     ; Timer 1 ISR - Counting time and display control
+00DD                 143     TIMER1_ISR:
+                     144         ; Check if still counting down
+                     145             
                      146             
                      147             
-                     148             
-00E1 EB              149         MOV A, R3
-00E2 B4011A          150         CJNE A, #1, NOT_COUNTING ; IF(start==0)
-                     151             
-00E5 EA              152             MOV A, R2
-00E6 B40A48          153             CJNE A, #10, CONTINUE_COUNTING ; If(conta ==10){
-00E9 7A00            154             MOV R2, #0; conta = 0
+00DD EB              148         MOV A, R3
+00DE B40122          149         CJNE A, #1, NOT_COUNTING ; IF(start==0)
+                     150             
+00E1 EA              151             MOV A, R2
+00E2 B40A50          152             CJNE A, #10, CONTINUE_COUNTING ; If(conta ==10){
+00E5 7A00            153             MOV R2, #0; conta = 0
+                     154             
                      155             
-                     156             
-00EB E9              157             MOV A , R1
-00EC 700E            158         JNZ DecrementaDecimas ;IF(DecimasSegundos==0)
-                     159             ;else{
-00EE 7909            160         MOV R1, #9
-00F0 D842            161         DJNZ R0, Return
-                     162             ;}
-                     163             
-                     164             
-                     165             ;if(Segundos == 0 & DecimasSegundos == 0){
-00F2 E8              166             MOV A , R0
-00F3 FD              167         MOV R5, A
-00F4 E9              168             MOV A, R1
-00F5 FE              169             MOV R6, A
-00F6 7B00            170             MOV R3, #0
-00F8 7A00            171             MOV R2, #0
-                     172             
-                     173     
-00FA 8038            174         JMP Return
-                     175             ;}
+00E7 E9              156             MOV A , R1
+00E8 7016            157         JNZ DecrementaDecimas ;IF(DecimasSegundos==0)
+                     158             
+00EA E8              159             MOV A, R0
+00EB 700C            160             JNZ SegundosNaoZero ;if(Segundos ==0){
+00ED C2AA            161             CLR EX1
+00EF E8              162             MOV A , R0
+00F0 FD              163         MOV R5, A
+00F1 E9              164             MOV A, R1
+00F2 FE              165             MOV R6, A
+00F3 7B00            166             MOV R3, #0
+00F5 7A00            167             MOV R2, #0
+00F7 803F            168             JMP return
+                     169             
+00F9                 170     SegundosNaoZero:
+00F9 7909            171         MOV R1, #9
+00FB 18              172         DEC R0
+                     173             
+00FC 803A            174             JMP return
+                     175     
                      176             ;}
-00FC                 177     DecrementaDecimas:
-00FC 19              178             DEC R1; DecimasSegundos --
-00FD 8035            179             JMP Return
-                     180     
-                     181             
-00FF                 182     NOT_COUNTING:
-A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 00:08:41 PAGE     4
+                     177             
+                     178             
+                     179     
+                     180             
+                     181     
+00FE 8038            182         JMP Return
+A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 15:39:11 PAGE     4
 
-00FF EA              183         MOV A, R2
-0100 B4642E          184             CJNE A, #100, CONTINUE_COUNTING ; If(conta ==100){
-0103 7A00            185             MOV R2, #0; conta = 0
-0105 E8              186             MOV A, R0
-0106 B40A06          187             CJNE A, #10, NotSecond; if(segundos = 10)
-0109 ED              188             MOV A, R5; Segundos = GuardaSegundos
-010A F8              189             MOV R0, A 
-010B EE              190             MOV A, R6
-010C F9              191             MOV R1,A; DecimasSegundos = GuardaDecimasSegundos
-010D 8025            192             JMP Return
-                     193     
-010F                 194     NotSecond:
-                     195     
-010F 780A            196             MOV R0, #10
-0111 BC0104          197             CJNE R4, #1, RespostaB
-0114 790B            198             MOV R1, #11
-0116 801C            199             JMP Return
-0118                 200     RespostaB:
-0118 BC0204          201             CJNE R4, #2,RespostaC
-011B 790C            202             MOV R1, #12
-011D 8015            203             JMP Return
-011F                 204     RespostaC:
-011F BC0304          205             CJNE R4, #3,RespostaD
-0122 790D            206             MOV R1, #13
-0124 800E            207             JMP Return
-0126                 208     RespostaD:
-0126 BC0404          209             CJNE R4, #4,RespostaDefault
-0129 790E            210             MOV R1, #14
-012B 8007            211             JMP Return
-                     212             
-012D                 213     RespostaDefault:        
-012D 790A            214             MOV R1, #10
-012F 8003            215             JMP Return      
-                     216     
-                     217     
-0131                 218     CONTINUE_COUNTING:
-0131 0A              219         INC R2 ; CONTA++
-0132 8000            220             JMP Return
-0134                 221     Return:
-0134 758DD8          222         MOV TH1, #TempoH
-0137 758BF0          223         MOV TL1, #TempoL            
-013A 32              224             RETI    
+                     183             ;}
+                     184             ;}
+0100                 185     DecrementaDecimas:
+0100 19              186             DEC R1; DecimasSegundos --
+0101 8035            187             JMP Return
+                     188     
+                     189             
+0103                 190     NOT_COUNTING:
+0103 EA              191         MOV A, R2
+0104 B4642E          192             CJNE A, #100, CONTINUE_COUNTING ; If(conta ==100){
+0107 7A00            193             MOV R2, #0; conta = 0
+0109 E8              194             MOV A, R0
+010A B40A06          195             CJNE A, #10, NotSecond; if(segundos = 10)
+010D ED              196             MOV A, R5; Segundos = GuardaSegundos
+010E F8              197             MOV R0, A 
+010F EE              198             MOV A, R6
+0110 F9              199             MOV R1,A; DecimasSegundos = GuardaDecimasSegundos
+0111 8025            200             JMP Return
+                     201     
+0113                 202     NotSecond:
+                     203     
+0113 780A            204             MOV R0, #10
+0115 BC0104          205             CJNE R4, #1, RespostaB
+0118 790B            206             MOV R1, #11
+011A 801C            207             JMP Return
+011C                 208     RespostaB:
+011C BC0204          209             CJNE R4, #2,RespostaC
+011F 790C            210             MOV R1, #12
+0121 8015            211             JMP Return
+0123                 212     RespostaC:
+0123 BC0304          213             CJNE R4, #3,RespostaD
+0126 790D            214             MOV R1, #13
+0128 800E            215             JMP Return
+012A                 216     RespostaD:
+012A BC0404          217             CJNE R4, #4,RespostaDefault
+012D 790E            218             MOV R1, #14
+012F 8007            219             JMP Return
+                     220             
+0131                 221     RespostaDefault:        
+0131 790A            222             MOV R1, #10
+0133 8003            223             JMP Return      
+                     224     
                      225     
-                     226     ; Display subroutine - Control the 7-segment displays
-013B                 227     DISPLAY:
-                     228         ; Display digit D1 based on seconds
-013B E8              229         MOV A, R0
-013C 3142            230         ACALL DISPLAY_DIGIT_D1
-                     231     
-                     232         ; Display digit D2 based on tenths of seconds
-013E E9              233         MOV A, R1
-013F 3149            234         ACALL DISPLAY_DIGIT_D2
-                     235         
-                     236         
-0141 22              237         RET
-                     238     
-0142                 239     DISPLAY_DIGIT_D1:
-                     240         ; Lookup segment values for display D1
-0142 900300          241         MOV DPTR, #segmentos1
-0145 93              242         MOVC A, @A+DPTR
-                     243     
-                     244         ; Update segments for D1
-0146 F590            245         MOV D1, A
-0148 22              246         RET
-                     247     
-0149                 248     DISPLAY_DIGIT_D2:
-A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 00:08:41 PAGE     5
+0135                 226     CONTINUE_COUNTING:
+0135 0A              227         INC R2 ; CONTA++
+0136 8000            228             JMP Return
+0138                 229     Return:
+0138 758DD8          230         MOV TH1, #TempoH
+013B 758BF0          231         MOV TL1, #TempoL            
+013E 32              232             RETI    
+                     233     
+                     234     ; Display subroutine - Control the 7-segment displays
+013F                 235     DISPLAY:
+                     236         ; Display digit D1 based on seconds
+013F E8              237         MOV A, R0
+0140 3146            238         ACALL DISPLAY_DIGIT_D1
+                     239     
+                     240         ; Display digit D2 based on tenths of seconds
+0142 E9              241         MOV A, R1
+0143 314D            242         ACALL DISPLAY_DIGIT_D2
+                     243         
+                     244         
+0145 22              245         RET
+                     246     
+0146                 247     DISPLAY_DIGIT_D1:
+                     248         ; Lookup segment values for display D1
+A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 15:39:11 PAGE     5
 
-                     249         ; Lookup segment values for display D2
-0149 90030B          250         MOV DPTR, #segmentos2
-014C 93              251         MOVC A, @A+DPTR
-                     252         ; Update segments for D2
-014D F5A0            253         MOV D2, A
-014F 22              254         RET
-                     255         
-                     256     
-                     257     
-                     258     ; Segmento de interrupção
-----                 259     CSEG AT 0000h
-0000 020050          260         LJMP INICIO
-----                 261     CSEG AT 0003h 
-0003 02007F          262         LJMP EX0_ISR
-----                 263     CSEG AT 000Bh
-000B 0200A9          264         LJMP TIMER0_ISR
-----                 265     CSEG AT 0013h
-0013 0200BA          266         LJMP EX1_ISR
-----                 267     CSEG AT 001Bh
-001B 0200E1          268         LJMP TIMER1_ISR
-                     269     
-                     270     END
-A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 00:08:41 PAGE     6
+0146 900300          249         MOV DPTR, #segmentos1
+0149 93              250         MOVC A, @A+DPTR
+                     251     
+                     252         ; Update segments for D1
+014A F590            253         MOV D1, A
+014C 22              254         RET
+                     255     
+014D                 256     DISPLAY_DIGIT_D2:
+                     257         ; Lookup segment values for display D2
+014D 90030B          258         MOV DPTR, #segmentos2
+0150 93              259         MOVC A, @A+DPTR
+                     260         ; Update segments for D2
+0151 F5A0            261         MOV D2, A
+0153 22              262         RET
+                     263         
+                     264     
+                     265     
+                     266     ; Segmento de interrupção
+----                 267     CSEG AT 0000h
+0000 020050          268         LJMP INICIO
+----                 269     CSEG AT 0003h 
+0003 02007F          270         LJMP EX0_ISR
+----                 271     CSEG AT 000Bh
+000B 0200A9          272         LJMP TIMER0_ISR
+----                 273     CSEG AT 0013h
+0013 0200B8          274         LJMP EX1_ISR
+----                 275     CSEG AT 001Bh
+001B 0200DD          276         LJMP TIMER1_ISR
+                     277     
+                     278     END
+A51 MACRO ASSEMBLER  PROJETO_ASSEMBLY                                                     05/23/2024 15:39:11 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -305,20 +313,20 @@ BA . . . . . . . .  B ADDR   00B0H.4 A
 BB . . . . . . . .  B ADDR   00B0H.5 A   
 BC . . . . . . . .  B ADDR   00B0H.6 A   
 BD . . . . . . . .  B ADDR   00B0H.7 A   
-CONTINUE_COUNTING.  C ADDR   0131H   A   
+CONTINUE_COUNTING.  C ADDR   0135H   A   
 D1 . . . . . . . .  D ADDR   0090H   A   
 D2 . . . . . . . .  D ADDR   00A0H   A   
-DECREMENTADECIMAS.  C ADDR   00FCH   A   
-DISPLAY. . . . . .  C ADDR   013BH   A   
-DISPLAY_DIGIT_D1 .  C ADDR   0142H   A   
-DISPLAY_DIGIT_D2 .  C ADDR   0149H   A   
+DECREMENTADECIMAS.  C ADDR   0100H   A   
+DISPLAY. . . . . .  C ADDR   013FH   A   
+DISPLAY_DIGIT_D1 .  C ADDR   0146H   A   
+DISPLAY_DIGIT_D2 .  C ADDR   014DH   A   
 EX0. . . . . . . .  B ADDR   00A8H.0 A   
 EX0_ISR. . . . . .  C ADDR   007FH   A   
-EX0_ISR_S0 . . . .  C ADDR   008AH   A   
+EX0_ISR_S0 . . . .  C ADDR   008CH   A   
 EX1. . . . . . . .  B ADDR   00A8H.2 A   
-EX1_ISR. . . . . .  C ADDR   00BAH   A   
+EX1_ISR. . . . . .  C ADDR   00B8H   A   
 FIM_EXO_ISR. . . .  C ADDR   00A8H   A   
-HANDLE_RESPONSE. .  C ADDR   00DAH   A   
+HANDLE_RESPONSE. .  C ADDR   00D6H   A   
 IE . . . . . . . .  D ADDR   00A8H   A   
 IE0. . . . . . . .  B ADDR   0088H.1 A   
 IE1. . . . . . . .  B ADDR   0088H.3 A   
@@ -327,28 +335,29 @@ IP . . . . . . . .  D ADDR   00B8H   A
 IT0. . . . . . . .  B ADDR   0088H.0 A   
 IT1. . . . . . . .  B ADDR   0088H.2 A   
 MAIN_LOOP. . . . .  C ADDR   007BH   A   
-NOTSECOND. . . . .  C ADDR   010FH   A   
-NOT_COUNTING . . .  C ADDR   00FFH   A   
+NOTSECOND. . . . .  C ADDR   0113H   A   
+NOT_COUNTING . . .  C ADDR   0103H   A   
 P1 . . . . . . . .  D ADDR   0090H   A   
 P2 . . . . . . . .  D ADDR   00A0H   A   
 P3 . . . . . . . .  D ADDR   00B0H   A   
-RESPOSTAB. . . . .  C ADDR   0118H   A   
-RESPOSTAC. . . . .  C ADDR   011FH   A   
-RESPOSTAD. . . . .  C ADDR   0126H   A   
-RESPOSTADEFAULT. .  C ADDR   012DH   A   
-RETURN . . . . . .  C ADDR   0134H   A   
+RESPOSTAB. . . . .  C ADDR   011CH   A   
+RESPOSTAC. . . . .  C ADDR   0123H   A   
+RESPOSTAD. . . . .  C ADDR   012AH   A   
+RESPOSTADEFAULT. .  C ADDR   0131H   A   
+RETURN . . . . . .  C ADDR   0138H   A   
 SEGMENTOS1 . . . .  C ADDR   0300H   A   
 SEGMENTOS2 . . . .  C ADDR   030BH   A   
-SELECT_A . . . . .  C ADDR   00CCH   A   
-SELECT_B . . . . .  C ADDR   00D0H   A   
-SELECT_C . . . . .  C ADDR   00D4H   A   
-SELECT_D . . . . .  C ADDR   00D8H   A   
+SEGUNDOSNAOZERO. .  C ADDR   00F9H   A   
+SELECT_A . . . . .  C ADDR   00C8H   A   
+SELECT_B . . . . .  C ADDR   00CCH   A   
+SELECT_C . . . . .  C ADDR   00D0H   A   
+SELECT_D . . . . .  C ADDR   00D4H   A   
 TEMPOH . . . . . .  N NUMB   00D8H   A   
 TEMPOL . . . . . .  N NUMB   00F0H   A   
 TH0. . . . . . . .  D ADDR   008CH   A   
 TH1. . . . . . . .  D ADDR   008DH   A   
 TIMER0_ISR . . . .  C ADDR   00A9H   A   
-TIMER1_ISR . . . .  C ADDR   00E1H   A   
+TIMER1_ISR . . . .  C ADDR   00DDH   A   
 TL0. . . . . . . .  D ADDR   008AH   A   
 TL1. . . . . . . .  D ADDR   008BH   A   
 TMOD . . . . . . .  D ADDR   0089H   A   

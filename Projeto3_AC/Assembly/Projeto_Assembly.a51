@@ -62,6 +62,8 @@ EX0_ISR:
     SETB TR0  ; Start Timer 0
     SETB TR1  ; Start Timer 1
     CLR EX0   ; Disable external interrupt 0
+	SETB EX1;
+
 
     JMP Fim_EXO_ISR
     
@@ -80,7 +82,6 @@ EX0_ISR_s0:
     SETB TR0
     CLR TR1
     CLR EX0
-    CLR EX1
     MOV R2, #0 ; Start = 0 
     
 Fim_EXO_ISR:  
@@ -94,7 +95,6 @@ TIMER0_ISR:
     CLR IE1
     
     SETB EX0
-    SETB EX1  ; Re-enable External Interrupt 0
 
     ; Reset Timer 0
     MOV TH0, #TempoH
@@ -104,7 +104,6 @@ TIMER0_ISR:
 
 ; External Interrupt 1 ISR - Response handling
 EX1_ISR:
-    SETB TR0  ; Start Timer 0
     CLR EX1   ; Disable external interrupt 1
 
     ; Check which response is selected
@@ -156,19 +155,28 @@ TIMER1_ISR:
 	
 	MOV A , R1
     JNZ DecrementaDecimas ;IF(DecimasSegundos==0)
-	;else{
-    MOV R1, #9
-    DJNZ R0, Return
-	;}
 	
-	
-	;if(Segundos == 0 & DecimasSegundos == 0){
+	MOV A, R0
+	JNZ SegundosNaoZero ;if(Segundos ==0){
+	CLR EX1
 	MOV A , R0
     MOV R5, A
 	MOV A, R1
 	MOV R6, A
 	MOV R3, #0
 	MOV R2, #0
+	JMP return
+	
+SegundosNaoZero:
+    MOV R1, #9
+    DEC R0
+	
+	JMP return
+
+	;}
+	
+	
+
 	
 
     JMP Return
